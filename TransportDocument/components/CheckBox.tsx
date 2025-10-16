@@ -1,4 +1,4 @@
-import {TouchableOpacity, View, Text, StyleSheet, Image} from "react-native";
+import {TouchableOpacity, View, Text, StyleSheet, Image, Platform} from "react-native";
 import { colors} from "@/constants/colors";
 
 interface CheckBoxProps {
@@ -36,6 +36,12 @@ const styles = StyleSheet.create({
         borderColor: colors.lightBorder,
         borderWidth: 1,
         alignItems: 'flex-start',
+        ...Platform.select({
+            android:{
+                elevation: 5,
+            }
+        }),
+        backgroundColor: colors.lightBackground,
     },
     checkboxLabel: {
         fontSize: 15,

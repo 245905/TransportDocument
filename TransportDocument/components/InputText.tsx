@@ -1,4 +1,4 @@
-import {View, TextInput, Text, StyleSheet, Image, TouchableOpacity} from "react-native";
+import {View, TextInput, Text, StyleSheet, Image, TouchableOpacity, Platform} from "react-native";
 
 import {colors} from "@/constants/colors";
 import {useState} from "react";
@@ -25,7 +25,7 @@ const InputText = (props: InputTextProps) => {
                 onChangeText={props.onChangeText}
                 value={props.value}
                 placeholder={props.placeHolder}
-                secureTextEntry={isShown && props.type === "password"}
+                secureTextEntry={(isShown && props.type === "password") || props.type === "confirmPassword"}
                 placeholderTextColor={colors.lightHint}
             />
             {
@@ -50,8 +50,7 @@ const styles = StyleSheet.create({
             "relative",
         marginBottom:
             40
-    }
-    ,
+    },
     input: {
         width: '100%',
         height: 50,
@@ -59,10 +58,15 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         borderColor: colors.lightBorder,
         borderWidth: 1,
+        zIndex: 1,
         paddingHorizontal: 20,
         fontSize: 17,
-    }
-    ,
+        ...Platform.select({
+            android:{
+                elevation: 5,
+            }
+        })
+    },
     label: {
         fontSize: 14,
         color: colors.lightText,

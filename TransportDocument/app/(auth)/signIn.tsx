@@ -1,12 +1,11 @@
-
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Image} from "expo-image";
 import { colors } from "@/constants/colors";
 import InputText from "@/components/InputText"
 import {useState} from "react";
 import {Link} from "expo-router";
 import CheckBox from "@/components/CheckBox";
-import {ValidationResult, validateSignIn} from "@/scripts/validateSignIn";
+import {ValidationResult, validateAuthorization} from "@/scripts/validateAuthorization";
 
 export default function SignIn() {
     const [loginData, setLoginData] = useState({
@@ -35,7 +34,7 @@ export default function SignIn() {
     }
 
     const handleOnSubmit = () => {
-        const result = validateSignIn({
+        const result = validateAuthorization({
             email: loginData.email,
             password: loginData.password,
         })
@@ -132,6 +131,11 @@ const styles = StyleSheet.create({
         backgroundColor: colors.lightBackground,
         borderWidth: 1,
         borderColor: colors.lightBorder,
+        ...Platform.select({
+            android:{
+                elevation: 5,
+            }
+        })
     },
     signInButtonText: {
         fontSize: 24,
