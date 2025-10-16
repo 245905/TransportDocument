@@ -5,18 +5,49 @@ import { colors } from "@/constants/colors";
 import InputText from "@/components/InputText"
 import {useState} from "react";
 import {Link} from "expo-router";
+import CheckBox from "@/components/CheckBox";
+import {ValidationResult, validateSignIn} from "@/scripts/validateSignIn";
 
 export default function SignIn() {
     const [loginData, setLoginData] = useState({
         email: "",
         password: "",
+        rememberMe: false,
     });
 
-    const handleChange = (field : string, value : string) => {
+    const [errorData, setErrorData] = useState<ValidationResult>({
+        errorCode: 0,
+        errorMessage: "",
+    })
+
+    const handleOnChangeInput = (field : string, value : string) => {
         setLoginData(prevData => ({
             ...prevData,
             [field]: value,
-        }))
+        }));
+    };
+
+    const handleOnToggle = () => {
+        setLoginData({
+            ...loginData,
+            rememberMe: !loginData["rememberMe"],
+        })
+    }
+
+    const handleOnSubmit = () => {
+        const result = validateSignIn({
+            email: loginData.email,
+            password: loginData.password,
+        })
+
+        setErrorData(result)
+
+        //error 0 - correct data
+        //error 1 - incorrect password
+        //error 2 - incorrect e-mail
+        //error 3 - both incorrect
+
+        //Send to server
     }
 
     return (
@@ -27,25 +58,31 @@ export default function SignIn() {
                 <Text style={styles.header}>
                     Sign In
                 </Text>
+                <Text style={styles.errorMessage}>
+                    {errorData.errorMessage}
+                </Text>
                 <InputText
                     placeHolder={'Enter e-mail...'}
                     label={'E-mail'}
                     value={loginData.email}
-                    onChangeText={(v) => handleChange('email', v)}
+                    onChangeText={(v) => handleOnChangeInput('email', v)}
                     type={'text'}
+                    error={errorData.errorCode === 2 || errorData.errorCode === 3}
                 />
                 <InputText
                     placeHolder={'Enter password...'}
                     label={'Password'}
                     value={loginData.password}
-                    onChangeText={(v) => handleChange('password', v)}
+                    onChangeText={(v) => handleOnChangeInput('password', v)}
                     type={'password'}
+                    error={errorData.errorCode === 1 || errorData.errorCode === 3}
                 />
                 <Link href={"/(auth)/forgotPassword"} style={styles.forgotPassword}>
                     Forgot your password?
                 </Link>
-                <TouchableOpacity style={styles.signInButton}>
-                    <Text style={styles.signInButtonText}>
+                <CheckBox label={"Remember me"} value={loginData.rememberMe} onToggle={handleOnToggle} />
+                <TouchableOpacity onPress={handleOnSubmit} style={[styles.signInButton, loginData.email !== "" && loginData.password !== "" && styles.activeButton]}>
+                    <Text style={[styles.signInButtonText, loginData.email !== "" && loginData.password !== "" && styles.activeButtonText]}>
                         Sign In
                     </Text>
                 </TouchableOpacity>
@@ -76,8 +113,8 @@ const styles = StyleSheet.create({
         fontSize: 50,
         fontWeight: 'semibold',
         textAlign: 'center',
-        marginTop: 60,
-        marginBottom: 70,
+        marginTop: 30,
+        marginBottom: 50,
     },
     forgotPassword: {
         marginTop: -35,
@@ -90,7 +127,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 50,
         alignSelf: 'center',
-        top: 50,
+        top: 70,
         borderRadius: 50,
         backgroundColor: colors.lightBackground,
         borderWidth: 1,
@@ -102,5 +139,17 @@ const styles = StyleSheet.create({
         lineHeight: 50,
         color: colors.lightText,
         fontWeight: 'semibold',
-    }
+    },
+    activeButton: {
+        backgroundColor: colors.lightBorder,
+    },
+    activeButtonText: {
+        color: colors.lightBackground,
+    },
+    errorMessage: {
+        color: colors.error,
+        fontSize: 16,
+        textAlign: 'center',
+        top: -25
+    },
 });
