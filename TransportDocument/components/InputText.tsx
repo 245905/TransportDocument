@@ -1,4 +1,4 @@
-import {View, TextInput, Text, StyleSheet, Image, TouchableOpacity, Platform} from "react-native";
+import {View, TextInput, Text, StyleSheet, Platform} from "react-native";
 
 import {colors} from "@/constants/colors";
 import {useState} from "react";
@@ -10,32 +10,28 @@ interface InputTextProps {
     value: string,
     label: string,
     error: boolean,
+    editable?: boolean
 }
 
 const InputText = (props: InputTextProps) => {
-    const [isShown, setIsShown] = useState(true);
+    const [focused, setFocused] = useState(false);
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.label, props.error && styles.errorLabel]}>
+            <Text style={[styles.label, focused && styles.focusedInputLabel,props.error && styles.errorLabel]}>
                 {props.label}
             </Text>
             <TextInput
-                style={[styles.input, props.type === "password" && styles.passwordInput, props.error && styles.errorBorderInput]}
+                style={[styles.input, focused && styles.focusedBorderInput, props.error && styles.errorBorderInput]}
                 onChangeText={props.onChangeText}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
                 value={props.value}
                 placeholder={props.placeHolder}
-                secureTextEntry={(isShown && props.type === "password") || props.type === "confirmPassword"}
                 placeholderTextColor={colors.lightHint}
+                keyboardType={props.type === "numeric" ? "numeric" : "default"}
+                editable={props.editable}
             />
-            {
-                props.type === "password" &&
-                <TouchableOpacity onPress={() => setIsShown(!isShown)} style={styles.toggleIconContainer}>
-                    <Image source={isShown ? require('@/assets/images/icons/show_password.png')
-                        : require('@/assets/images/icons/hide_password.png')}
-                           style={styles.toggleShowPasswordIcon}/>
-                </TouchableOpacity>
-            }
         </View>
     );
 };
@@ -72,7 +68,7 @@ const styles = StyleSheet.create({
         color: colors.lightText,
         backgroundColor: colors.lightBackground,
         top: -12,
-        left: '8%',
+        left: 35,
         zIndex: 2,
         paddingHorizontal: "2%",
         position: "absolute",
@@ -99,5 +95,11 @@ const styles = StyleSheet.create({
     },
     errorBorderInput: {
         borderColor: colors.error,
+    },
+    focusedBorderInput: {
+        borderColor: colors.focusedColor,
+    },
+    focusedInputLabel: {
+        color: colors.focusedColor,
     }
 });

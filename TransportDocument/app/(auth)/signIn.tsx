@@ -1,93 +1,149 @@
-import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Platform, Pressable, Text, View, StyleSheet, Animated, Easing, Keyboard} from 'react-native';
 import {Image} from "expo-image";
-import { colors } from "@/constants/colors";
+import {colors} from "@/constants/colors";
 import InputText from "@/components/InputText"
-import {useState} from "react";
-import {Link} from "expo-router";
+import {useEffect, useRef, useState} from "react";
+import {validatePhoneNumber, validateVerificationCode} from "@/scripts/validateAuthorization";
+import VerificationCode from "@/components/VerificationCode";
+import {useLanguage} from "@/context/LanguageContext";
 import CheckBox from "@/components/CheckBox";
-import {ValidationResult, validateAuthorization} from "@/scripts/validateAuthorization";
 
 export default function SignIn() {
-    const [loginData, setLoginData] = useState({
-        email: "",
-        password: "",
+    const {t} = useLanguage();
+
+    const [credentials, setCredentials] = useState({
+        phoneNumber: "",
         rememberMe: false,
+        code: "",
     });
 
-    const [errorData, setErrorData] = useState<ValidationResult>({
-        errorCode: 0,
-        errorMessage: "",
-    })
+    const [error, setError] = useState("");
 
-    const handleOnChangeInput = (field : string, value : string) => {
-        setLoginData(prevData => ({
+    const [step, setStep] = useState(0);
+
+    const handleOnChangeInput = (field: string, value: string) => {
+        setCredentials(prevData => ({
             ...prevData,
             [field]: value,
         }));
+
+        setError("")
     };
 
+    const translateY = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const keyboardShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+            Animated.timing(translateY, {
+                toValue: -e.endCoordinates.height / 2.5 ,
+                duration: 100,
+                useNativeDriver: true,
+                easing: Easing.out(Easing.ease),
+            }).start();
+        });
+
+        const keyboardHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 100,
+                useNativeDriver: true,
+                easing: Easing.out(Easing.ease),
+            }).start();
+        });
+
+        return () => {
+            keyboardShowListener.remove();
+            keyboardHideListener.remove();
+        };
+    }, [translateY]);
+
     const handleOnToggle = () => {
-        setLoginData({
-            ...loginData,
-            rememberMe: !loginData["rememberMe"],
+        setCredentials({
+            ...credentials,
+            rememberMe: !credentials["rememberMe"],
         })
     }
 
-    const handleOnSubmit = () => {
-        const result = validateAuthorization({
-            email: loginData.email,
-            password: loginData.password,
-        })
+    const handleOnChangeInputCode = (value: string) => {
+        setCredentials(prevData => ({
+            ...prevData,
+            ["code"]: value,
+        }));
+    };
 
-        setErrorData(result)
+    const handleOnClick = () => {
+        let result = false;
 
-        //error 0 - correct data
-        //error 1 - incorrect password
-        //error 2 - incorrect e-mail
-        //error 3 - both incorrect
+        switch (step) {
+            case 0:
+                result = validatePhoneNumber(credentials.phoneNumber);
 
-        //Send to server
+                if (result) {
+                    setStep(step + 1)
+                    setError("")
+                }
+                else {
+                    setError("Invalid phone number!")
+                }
+                Keyboard.dismiss();
+                break;
+            case 1:
+                //TODO correct code do zmiany
+                result = validateVerificationCode(credentials.code, "123456");
+                if (result) {
+                    setError("")
+                }
+                else setError("Invalid verification code!")
+                break;
+        }
     }
 
     return (
         <View style={styles.background}>
             <Image source={require('@/assets/images/auth_background.webp')}
                    style={styles.backgroundImage}/>
-            <View style={styles.loginContainer}>
+            <Animated.View style={[styles.loginContainer, {transform: [{translateY}]}]}>
                 <Text style={styles.header}>
-                    Sign In
+                    {t("signInLabel")}
                 </Text>
                 <Text style={styles.errorMessage}>
-                    {errorData.errorMessage}
+                    {error}
                 </Text>
                 <InputText
-                    placeHolder={'Enter e-mail...'}
-                    label={'E-mail'}
-                    value={loginData.email}
-                    onChangeText={(v) => handleOnChangeInput('email', v)}
-                    type={'text'}
-                    error={errorData.errorCode === 2 || errorData.errorCode === 3}
+                    placeHolder={t("phoneNumberPlaceholder")}
+                    label={t("phoneNumberLabel")}
+                    value={credentials.phoneNumber}
+                    onChangeText={(v) => handleOnChangeInput('phoneNumber', v)}
+                    type={'numeric'}
+                    error={error !== "" && step === 0}
                 />
-                <InputText
-                    placeHolder={'Enter password...'}
-                    label={'Password'}
-                    value={loginData.password}
-                    onChangeText={(v) => handleOnChangeInput('password', v)}
-                    type={'password'}
-                    error={errorData.errorCode === 1 || errorData.errorCode === 3}
-                />
-                <Link href={"/(auth)/forgotPassword"} style={styles.forgotPassword}>
-                    Forgot your password?
-                </Link>
-                <CheckBox label={"Remember me"} value={loginData.rememberMe} onToggle={handleOnToggle} />
-                <TouchableOpacity onPress={handleOnSubmit} style={[styles.signInButton, loginData.email !== "" && loginData.password !== "" && styles.activeButton]}>
-                    <Text style={[styles.signInButtonText, loginData.email !== "" && loginData.password !== "" && styles.activeButtonText]}>
-                        Sign In
+                {
+                    step === 1 &&
+                    <>
+                        <View style={styles.verificationCodeBar}>
+                            <Text style={styles.verificationCodeLabel}>
+                                {t("verificationCodeLabel")}
+                            </Text>
+                            <Text style={styles.resetCode}>
+                                {t("resendCode")}
+                            </Text>
+                        </View>
+                        <VerificationCode onChange={handleOnChangeInputCode} error={error !== ""}/>
+                        <CheckBox label={t("rememberMe")} value={credentials.rememberMe} onToggle={handleOnToggle}/>
+                    </>
+                }
+                <Pressable onPress={handleOnClick}
+                           style={({pressed}) => [styles.confirmButton, step !== 0 && styles.centerConfirmButton,
+                               step === 0 ? credentials.phoneNumber !== "" && styles.activeButton : credentials.code.length === 6 && styles.activeButton, pressed && styles.pressedButton]}>
+                    <Text
+                        style={[styles.signInButtonText, step === 0 ?
+                            (credentials.phoneNumber !== "" && styles.activeButtonText) : (credentials.code.length === 6 && styles.activeButtonText)]}>
+                        {step === 0 ? t("buttonConfirm") : t("buttonSignIn")}
                     </Text>
-                </TouchableOpacity>
-            </View>
+                </Pressable>
+            </Animated.View>
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
@@ -108,31 +164,25 @@ const styles = StyleSheet.create({
         borderRadius: 30,
     },
     header: {
-        color: colors.lightText,
-        fontSize: 50,
+        color: colors.focusedColor,
+        fontSize: 40,
         fontWeight: 'semibold',
-        textAlign: 'center',
+        textAlign: 'left',
         marginTop: 30,
-        marginBottom: 50,
+        marginLeft: 40,
+        marginBottom: 30,
     },
-    forgotPassword: {
-        marginTop: -35,
-        fontSize: 14,
-        color: colors.lightLink,
-        left: 70,
-        textDecorationLine: 'underline',
-    },
-    signInButton: {
+    confirmButton: {
         width: 150,
         height: 50,
-        alignSelf: 'center',
-        top: 70,
+        alignSelf: 'flex-end',
+        right: '10%',
         borderRadius: 50,
         backgroundColor: colors.lightBackground,
         borderWidth: 1,
         borderColor: colors.lightBorder,
         ...Platform.select({
-            android:{
+            android: {
                 elevation: 5,
             }
         })
@@ -145,7 +195,8 @@ const styles = StyleSheet.create({
         fontWeight: 'semibold',
     },
     activeButton: {
-        backgroundColor: colors.lightBorder,
+        backgroundColor: colors.focusedColor,
+        borderColor: colors.focusedColor,
     },
     activeButtonText: {
         color: colors.lightBackground,
@@ -156,4 +207,33 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         top: -25
     },
+    verificationCodeLabel: {
+        color: colors.lightText,
+        fontSize: 25,
+        left: 0,
+        width: "70%"
+    },
+    resetCode: {
+        color: colors.lightLink,
+        fontSize: 15,
+        textDecorationLine: 'underline',
+        right: 0,
+        width: "30%",
+        marginTop: 8
+    },
+    verificationCodeBar:{
+        width: '80%',
+        marginLeft: "10%",
+        flexDirection: 'row',
+        marginBottom: 20
+    },
+    centerConfirmButton: {
+        alignSelf: 'center',
+        right: 0,
+        top: 20,
+    },
+    pressedButton: {
+        transform: [{scale: 0.97}],
+        opacity: 0.8,
+    }
 });

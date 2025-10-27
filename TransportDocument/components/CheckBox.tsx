@@ -1,4 +1,4 @@
-import {TouchableOpacity, View, Text, StyleSheet, Image, Platform} from "react-native";
+import {View, Text, StyleSheet, Image, Platform, Pressable} from "react-native";
 import { colors} from "@/constants/colors";
 
 interface CheckBoxProps {
@@ -10,11 +10,11 @@ interface CheckBoxProps {
 const CheckBox = (props : CheckBoxProps) => {
     return (
       <View style={styles.container}>
-            <TouchableOpacity onPress={props.onToggle}>
+            <Pressable onPress={props.onToggle}>
                 <View style={[styles.checkbox, props.value && styles.isChecked]}>
                     {props.value && <Image source={require("@/assets/images/icons/check.png")} style={styles.isCheckedIcon}/>}
                 </View>
-            </TouchableOpacity>
+            </Pressable>
           <Text style={styles.checkboxLabel}>
               {props.label}
           </Text>
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
         height: 30,
         width: '100%',
         left: "15%",
-        top: 25,
+        top: 5
     },
     checkbox: {
         width: 25,
@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
         color: colors.lightText,
     },
     isChecked: {
-        backgroundColor: colors.lightBorder,
+        backgroundColor: colors.checkBox,
+        borderColor: colors.checkBox,
     },
     isCheckedIcon: {
         width: 20,

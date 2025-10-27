@@ -1,76 +1,9 @@
-interface UserCredentials {
-    email: string;
-    password: string;
-}
+const PHONE_NUMBER_REGEX = /^\d{9}$/
 
-export interface ValidationResult {
-    errorCode: number;
-    errorMessage: string;
-}
-
-const passwordRegex: RegExp = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*()_+={}\[\]|:;"'<,>.?/])(?=.{8,})/;
-const emailRegex: RegExp = /^[\w.-]+@([\w-]+\.)+[\w-]{2,}$/;
-
-export function validateEmail(email: string): boolean {
-    return emailRegex.test(email);
-}
-
-function validatePassword(password: string): boolean {
-    return passwordRegex.test(password);
-}
-
-export function validateAuthorization(props: UserCredentials): ValidationResult {
-    let binaryErrorCodeString: string = "";
-    let errorMessage: string;
-
-    const isEmailValid: boolean = validateEmail(props.email);
-    const isPasswordValid: boolean = validatePassword(props.password);
-
-    binaryErrorCodeString += isEmailValid ? "0" : "1";
-    binaryErrorCodeString += isPasswordValid ? "0" : "1";
-
-    const errorCode: number = parseInt(binaryErrorCodeString, 2);
-
-    switch (errorCode) {
-        case 1:
-            errorMessage = "Invalid password!";
-            break;
-        case 2:
-            errorMessage = "Invalid e-mail address!";
-            break;
-        case 3:
-            errorMessage = "Invalid e-mail and password!";
-            break
-        default:
-            errorMessage = "";
-    }
-
-    return {
-        errorCode: errorCode,
-        errorMessage: errorMessage
-    }
+export function validatePhoneNumber(phoneNumber: string): boolean {
+    return PHONE_NUMBER_REGEX.test(phoneNumber);
 }
 
 export function validateVerificationCode(code: string, correctCode : string): boolean {
     return code === correctCode
-}
-
-export function validateNewPassword(newPassword : string, confirmPassword : string) : ValidationResult{
-    let errorCode: number = 0;
-    let errorMessage: string = "";
-
-    if(!passwordRegex.test(newPassword) || !passwordRegex.test(confirmPassword)) {
-        errorCode = 1;
-        errorMessage = "Invalid password!";
-    }
-
-    if(errorCode && newPassword !== confirmPassword) {
-        errorCode = 3;
-        errorMessage = "Passwords do not match!";
-    }
-
-    return {
-        errorCode: errorCode,
-        errorMessage: errorMessage
-    }
 }

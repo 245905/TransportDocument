@@ -11,6 +11,8 @@ const VerificationCode = (props: VerificationCodeProps) => {
     const [code, setCode] = useState<string[]>(new Array<string>(6).fill(''));
     const inputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
 
+    const [focused, setFocused] = useState(false);
+
     const handleOnChange = (text: string, index : number) => {
         const newCode = [...code];
 
@@ -46,10 +48,12 @@ const VerificationCode = (props: VerificationCodeProps) => {
                 code.map((digit, index) => (
                     <TextInput
                         key={index}
-                        style = {[styles.input, props.error && styles.errorBorder]}
+                        style = {[styles.input, focused && styles.focusedBorderInput,props.error && styles.errorBorder]}
                         keyboardType="numeric"
                         maxLength={1}
                         value={digit}
+                        onFocus={() => setFocused(true)}
+                        onBlur={() => setFocused(false)}
                         ref={(ref: TextInput | null) => {inputRefs.current[index] = ref}}
                         onChangeText={(text) => handleOnChange(text, index)}
                         onKeyPress={(e) => handleOnKeyPress(e, index)}
@@ -89,5 +93,8 @@ const styles = StyleSheet.create({
     },
     errorBorder: {
         borderColor: colors.error
+    },
+    focusedBorderInput: {
+        borderColor: colors.focusedColor,
     }
 })
