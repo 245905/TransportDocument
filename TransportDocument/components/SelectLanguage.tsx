@@ -24,7 +24,7 @@ const SelectLanguage = (props: SelectLanguageProps) => {
             if (newState) {
                 Animated.timing(rotateZ, {
                         toValue: 1,
-                        duration: 100,
+                        duration: 200,
                         useNativeDriver: true,
                         easing: Easing.out(Easing.ease),
                     }
@@ -33,7 +33,7 @@ const SelectLanguage = (props: SelectLanguageProps) => {
             } else {
                 Animated.timing(rotateZ, {
                         toValue: 0,
-                        duration: 100,
+                        duration: 200,
                         useNativeDriver: true,
                         easing: Easing.out(Easing.ease),
                     }
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     dropDownArrow: {
         width: 12,
         height: 12,
-        marginLeft: 10,
+        marginLeft: 25,
         marginTop: 14,
     },
     dropDownMenu: {
