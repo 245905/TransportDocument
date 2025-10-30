@@ -9,7 +9,7 @@ interface LanguageItemProps {
 
 const LanguageItem = (props: LanguageItemProps) => {
     return (
-        <Pressable style={styles.container} onPressIn={props.onSelect} pointerEvents="auto">
+        <Pressable style={styles.container} onPress={props.onSelect}>
             <Image source={props.flag} style={styles.flag}/>
             <Text style={styles.languageText}>
                 {props.name}

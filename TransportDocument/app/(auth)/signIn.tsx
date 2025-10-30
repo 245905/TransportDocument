@@ -126,7 +126,7 @@ export default function SignIn() {
                     onChangeText={(v) => handleOnChangeInput('phoneNumber', v)}
                     type={'numeric'}
                     error={error !== "" && step === 0}
-                    editable={isSelectLanguageActive}
+                    editable={!isSelectLanguageActive}
                 />
                 {
                     step === 1 &&
@@ -220,15 +220,16 @@ const styles = StyleSheet.create({
         color: colors.lightText,
         fontSize: 25,
         left: 0,
-        width: "70%"
+        width: "60%"
     },
     resetCode: {
         color: colors.lightLink,
         fontSize: 15,
         textDecorationLine: 'underline',
         right: 0,
-        width: "30%",
-        marginTop: 8
+        width: "40%",
+        marginTop: 8,
+        textAlign: "right"
     },
     verificationCodeBar:{
         width: '80%',
