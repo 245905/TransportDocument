@@ -12,6 +12,12 @@ import SelectLanguage from "@/components/SelectLanguage";
 export default function SignIn() {
     const {t} = useLanguage();
 
+    const [isSelectLanguageActive, setIsSelectLanguageActive] = useState(false);
+
+    const handleOnChangeLanguage = (v: boolean) => {
+        setIsSelectLanguageActive(v);
+    }
+
     const [credentials, setCredentials] = useState({
         phoneNumber: "",
         rememberMe: false,
@@ -108,7 +114,7 @@ export default function SignIn() {
                     <Text style={styles.header}>
                         {t("signInLabel")}
                     </Text>
-                    <SelectLanguage/>
+                    <SelectLanguage onClick={handleOnChangeLanguage}/>
                 </View>
                 <Text style={styles.errorMessage}>
                     {error}
@@ -120,6 +126,7 @@ export default function SignIn() {
                     onChangeText={(v) => handleOnChangeInput('phoneNumber', v)}
                     type={'numeric'}
                     error={error !== "" && step === 0}
+                    editable={isSelectLanguageActive}
                 />
                 {
                     step === 1 &&

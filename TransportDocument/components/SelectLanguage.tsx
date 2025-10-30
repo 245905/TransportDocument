@@ -5,7 +5,11 @@ import {languages} from "@/constants/languages";
 import {useRef, useState} from "react";
 import {useLanguage} from "@/context/LanguageContext";
 
-const SelectLanguage = () => {
+interface SelectLanguageProps {
+    onClick : (v: boolean) => void
+}
+
+const SelectLanguage = (props: SelectLanguageProps) => {
     const {setLanguage, lang} = useLanguage();
     const currentLanguage = languages.find(l => l.lang === lang);
 
@@ -25,6 +29,7 @@ const SelectLanguage = () => {
                         easing: Easing.out(Easing.ease),
                     }
                 ).start();
+                props.onClick(true)
             } else {
                 Animated.timing(rotateZ, {
                         toValue: 0,
@@ -33,6 +38,7 @@ const SelectLanguage = () => {
                         easing: Easing.out(Easing.ease),
                     }
                 ).start();
+                props.onClick(false)
             }
 
             return newState;
@@ -65,6 +71,7 @@ const SelectLanguage = () => {
                         keyExtractor={(item) => item.shortName}
                         renderItem={({item}) => (
                             <LanguageItem name={item.shortName} flag={item.flag} onSelect={() => {
+                                props.onClick(false)
                                 setLanguage(item.lang);
                                 setIsDroppedDown(false);
                                 Animated.timing(rotateZ, {
