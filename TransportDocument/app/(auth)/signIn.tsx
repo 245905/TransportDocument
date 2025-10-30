@@ -7,6 +7,7 @@ import {validatePhoneNumber, validateVerificationCode} from "@/scripts/validateA
 import VerificationCode from "@/components/VerificationCode";
 import {useLanguage} from "@/context/LanguageContext";
 import CheckBox from "@/components/CheckBox";
+import SelectLanguage from "@/components/SelectLanguage";
 
 export default function SignIn() {
     const {t} = useLanguage();
@@ -103,9 +104,12 @@ export default function SignIn() {
             <Image source={require('@/assets/images/auth_background.webp')}
                    style={styles.backgroundImage}/>
             <Animated.View style={[styles.loginContainer, {transform: [{translateY}]}]}>
-                <Text style={styles.header}>
-                    {t("signInLabel")}
-                </Text>
+                <View style={styles.topBar}>
+                    <Text style={styles.header}>
+                        {t("signInLabel")}
+                    </Text>
+                    <SelectLanguage/>
+                </View>
                 <Text style={styles.errorMessage}>
                     {error}
                 </Text>
@@ -165,12 +169,10 @@ const styles = StyleSheet.create({
     },
     header: {
         color: colors.focusedColor,
-        fontSize: 40,
+        fontSize: 35,
         fontWeight: 'semibold',
         textAlign: 'left',
-        marginTop: 30,
-        marginLeft: 40,
-        marginBottom: 30,
+        width: "50%"
     },
     confirmButton: {
         width: 150,
@@ -235,5 +237,13 @@ const styles = StyleSheet.create({
     pressedButton: {
         transform: [{scale: 0.97}],
         opacity: 0.8,
+    },
+    topBar: {
+        flexDirection: "row",
+        height: 50,
+        marginTop: 30,
+        marginLeft: "5%",
+        marginBottom: 30,
+        width: "90%"
     }
 });

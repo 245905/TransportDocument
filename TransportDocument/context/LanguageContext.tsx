@@ -4,7 +4,7 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Translations = typeof en;
-type Lang = keyof typeof AVAILABLE_LANGUAGES;
+export type Lang = keyof typeof AVAILABLE_LANGUAGES;
 
 const AVAILABLE_LANGUAGES = {
     en,
@@ -26,7 +26,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({child
 
     const setLanguage = async (lang: Lang) => {
         await AsyncStorage.setItem("lang", lang);
-        setLanguage(lang);
+        setLang(lang);
         setTranslations(AVAILABLE_LANGUAGES[lang]);
     };
 
