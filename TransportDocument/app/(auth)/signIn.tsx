@@ -10,27 +10,29 @@ import CheckBox from "@/components/CheckBox";
 import SelectLanguage from "@/components/SelectLanguage";
 
 export default function SignIn() {
+    //dane logowania
     const [credentials, setCredentials] = useState({
         phoneNumber: "",
         rememberMe: false,
         code: "",
     });
 
+    //język
     const {t} = useLanguage();
 
-    const contrastMode = useColorScheme();
-
+    //czy wybierany jest język
     const [isSelectLanguageActive, setIsSelectLanguageActive] = useState(false);
 
-    const handleOnChangeLanguage = (v: boolean) => {
-        setIsSelectLanguageActive(v);
+    //blokowanie inputa pod wyborem języka
+    const handleOnChangeLanguage = (v: boolean) => { setIsSelectLanguageActive(v); }
 
-    }
-
+    //treść errora
     const [error, setError] = useState("");
 
+    //krok logowania
     const [step, setStep] = useState(0);
 
+    //zmiana danych logowania
     const handleOnChangeInput = (field: string, value: string) => {
         setCredentials(prevData => ({
             ...prevData,
@@ -40,6 +42,7 @@ export default function SignIn() {
         setError("")
     };
 
+    //animacja po wyświwtleniu klawiatury
     const translateY = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -67,6 +70,7 @@ export default function SignIn() {
         };
     }, [translateY]);
 
+    //czy zapamietać
     const handleOnToggle = () => {
         setCredentials({
             ...credentials,
@@ -74,6 +78,7 @@ export default function SignIn() {
         })
     }
 
+    //zmiana kodu weryfikacyjnego
     const handleOnChangeInputCode = (value: string) => {
         setCredentials(prevData => ({
             ...prevData,
@@ -81,6 +86,7 @@ export default function SignIn() {
         }));
     };
 
+    //logika przechodzenia dalej podczas logowania
     const handleOnClick = () => {
         let result = false;
 
@@ -108,11 +114,49 @@ export default function SignIn() {
         }
     }
 
+    //kontrast telefonu
+    const contrastMode = useColorScheme();
+
+    //czy dark mode
+    const isDarkMode = contrastMode === "dark";
+
+    //style panelu logowania
+    const loginPanelStyle = [
+        styles.loginContainer,
+        {transform: [{translateY}]},
+        isDarkMode ? styles.darkBackground : styles.lightBackground
+    ];
+
+    //czy pierwszy krok
+    const isFirstStep = step === 0;
+
+    //czy wpisano numer telefonu
+    const isPhoneEmpty = credentials.phoneNumber !== "";
+
+    //czy wpisano cały kod
+    const isCodeEntered = credentials.code.length === 6;
+
+    //style guzika
+    const buttonStyle = [
+        isDarkMode ? styles.darkBackground : styles.lightBackground,
+        isDarkMode ? styles.darkBorder : styles.lightBorder,
+        styles.confirmButton,
+        !isFirstStep && styles.centerConfirmButton,
+        isFirstStep ? isPhoneEmpty && styles.activeButton : isCodeEntered && styles.activeButton
+    ];
+
+    //style tekstu guzika
+    const buttonTextStyle = [
+        isDarkMode ? styles.darkText : styles.lightText,
+        styles.signInButtonText,
+        isFirstStep ? isPhoneEmpty && styles.activeButtonText : isCodeEntered && styles.activeButtonText
+    ];
+
     return (
         <View style={styles.background}>
             <Image source={require('@/assets/images/auth_background.webp')}
                    style={styles.backgroundImage}/>
-            <Animated.View style={[styles.loginContainer, {transform: [{translateY}]}, contrastMode === 'dark' ? styles.darkBackground : styles.lightBackground]}>
+            <Animated.View style={loginPanelStyle}>
                 <View style={styles.topBar}>
                     <Text style={styles.header}>
                         {t("signInLabel")}
@@ -135,7 +179,7 @@ export default function SignIn() {
                     step === 1 &&
                     <>
                         <View style={styles.verificationCodeBar}>
-                            <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.verificationCodeLabel]}>
+                            <Text style={[isDarkMode ? styles.darkText : styles.lightText, styles.verificationCodeLabel]}>
                                 {t("verificationCodeLabel")}
                             </Text>
                             <Text style={styles.resetCode}>
@@ -147,12 +191,9 @@ export default function SignIn() {
                     </>
                 }
                 <Pressable onPress={handleOnClick}
-                           style={({pressed}) => [contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.confirmButton,
-                               step !== 0 && styles.centerConfirmButton,
-                               step === 0 ? credentials.phoneNumber !== "" && styles.activeButton : credentials.code.length === 6 && styles.activeButton, pressed && styles.pressedButton]}>
+                           style={({pressed}) => [...buttonStyle, pressed && styles.pressedButton]}>
                     <Text
-                        style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.signInButtonText, step === 0 ?
-                            (credentials.phoneNumber !== "" && styles.activeButtonText) : (credentials.code.length === 6 && styles.activeButtonText)]}>
+                        style={buttonTextStyle}>
                         {step === 0 ? t("buttonConfirm") : t("buttonSignIn")}
                     </Text>
                 </Pressable>

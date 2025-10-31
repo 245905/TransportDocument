@@ -16,15 +16,38 @@ interface InputTextProps {
 const InputText = (props: InputTextProps) => {
     const [focused, setFocused] = useState(false);
 
+    //kontrast telefonu
     const contrastMode = useColorScheme();
+
+    //czy dark mode
+    const isDarkMode = contrastMode === "dark";
+
+    //style opisu inputa
+    const labelStyle = [
+        isDarkMode ? styles.darkBackground : styles.lightBackground,
+        isDarkMode ? styles.darkText : styles.lightText,
+        styles.label,
+        focused && styles.focusedInputLabel,
+        props.error && styles.errorLabel
+    ];
+
+    //style inputa
+    const inputStyle = [
+        isDarkMode ? styles.darkBackground : styles.lightBackground,
+        isDarkMode ? styles.darkBorder : styles.lightBorder,
+        isDarkMode ? styles.darkText: styles.lightText,
+        styles.input,
+        focused && styles.focusedBorderInput,
+        props.error && styles.errorBorderInput
+    ];
 
     return (
         <View style={styles.container}>
-            <Text style={[contrastMode === "dark" ? [styles.darkText, styles.darkBackground] : [styles.lightText, styles.lightBackground], styles.label, focused && styles.focusedInputLabel,props.error && styles.errorLabel]}>
+            <Text style={labelStyle}>
                 {props.label}
             </Text>
             <TextInput
-                style={[contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder, styles.darkText] : [styles.lightBackground, styles.lightBorder, styles.lightText],styles.input, focused && styles.focusedBorderInput, props.error && styles.errorBorderInput]}
+                style={inputStyle}
                 onChangeText={props.onChangeText}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}

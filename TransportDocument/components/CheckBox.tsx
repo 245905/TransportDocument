@@ -8,16 +8,28 @@ interface CheckBoxProps {
 }
 
 const CheckBox = (props : CheckBoxProps) => {
+    //kontrast urządzenia
     const contrastMode = useColorScheme();
+
+    //czy ciemny motyw
+    const isDarkMode = contrastMode === "dark";
+
+    //style checkboxa
+    const checkBoxStyle = [
+        isDarkMode ? styles.darkBackground : styles.lightBackground,
+        isDarkMode ? styles.darkBorder : styles.lightBorder,
+        styles.checkbox,
+        props.value && styles.isChecked
+    ];
 
     return (
       <View style={styles.container}>
             <Pressable onPress={props.onToggle}>
-                <View style={[contrastMode == "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.checkbox, props.value && styles.isChecked]}>
+                <View style={checkBoxStyle}>
                     {props.value && <Image source={require("@/assets/images/icons/check.png")} style={styles.isCheckedIcon}/>}
                 </View>
             </Pressable>
-          <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.checkboxLabel]}>
+          <Text style={[isDarkMode ? styles.darkText : styles.lightText, styles.checkboxLabel]}>
               {props.label}
           </Text>
       </View>

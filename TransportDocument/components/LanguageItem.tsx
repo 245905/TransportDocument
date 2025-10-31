@@ -8,12 +8,16 @@ interface LanguageItemProps {
 }
 
 const LanguageItem = (props: LanguageItemProps) => {
+    //kontrast telefonu
     const contrastMode = useColorScheme();
 
+    //czy dark mode
+    const isDarkMode = contrastMode === "dark";
+
     return (
-        <Pressable style={[contrastMode === "dark" ? styles.darkBackground : styles.lightBackground, styles.container]} onPress={props.onSelect}>
+        <Pressable style={[isDarkMode ? styles.darkBackground : styles.lightBackground, styles.container]} onPress={props.onSelect}>
             <Image source={props.flag} style={styles.flag}/>
-            <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.languageText]}>
+            <Text style={[isDarkMode ? styles.darkText : styles.lightText, styles.languageText]}>
                 {props.name}
             </Text>
         </Pressable>

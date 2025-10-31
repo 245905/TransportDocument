@@ -8,13 +8,16 @@ interface VerificationCodeProps {
 }
 
 const VerificationCode = (props: VerificationCodeProps) => {
+    //tablica na cyfry kodu
     const [code, setCode] = useState<string[]>(new Array<string>(6).fill(''));
+
+    //tablica referencji do inputów
     const inputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
 
+    //czy aktywny
     const [focused, setFocused] = useState(false);
 
-    const contrastMode = useColorScheme();
-
+    //logika wpisywania kodu
     const handleOnChange = (text: string, index : number) => {
         const newCode = [...code];
 
@@ -37,20 +40,36 @@ const VerificationCode = (props: VerificationCodeProps) => {
         }
     }
 
+    //logika usuwania cyfr kodu
     const handleOnKeyPress = (event: any, index : number) => {
         if(event.nativeEvent.key === "Backspace" && index > 0 && code[index] === "") {
             inputRefs.current[index - 1]?.focus();
         }
     }
 
-    return (
+    //kontrast telefonu
+    const contrastMode = useColorScheme();
 
+    //czy ciemny modtyw
+    const isDarkMode = contrastMode === "dark";
+
+    //style inputów
+    const inputStyle = [
+        isDarkMode ? styles.darkBackground : styles.lightBackground,
+        isDarkMode ? styles.darkBorder : styles.lightBorder,
+        isDarkMode ? styles.darkText : styles.lightText,
+        styles.input,
+        focused && styles.focusedBorderInput,
+        props.error && styles.errorBorder
+    ];
+
+    return (
         <View style={styles.container}>
             {
                 code.map((digit, index) => (
                     <TextInput
                         key={index}
-                        style = {[contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder, styles.darkText] : [styles.lightBackground, styles.lightBorder, styles.lightText], styles.input, focused && styles.focusedBorderInput,props.error && styles.errorBorder]}
+                        style = {inputStyle}
                         keyboardType="numeric"
                         maxLength={1}
                         value={digit}

@@ -10,13 +10,16 @@ interface SelectLanguageProps {
 }
 
 const SelectLanguage = (props: SelectLanguageProps) => {
+    //język
     const {setLanguage, lang} = useLanguage();
+
+    //obecny język
     const currentLanguage = languages.find(l => l.lang === lang);
 
+    //czy jest otwarte menu
     const [isDroppedDown, setIsDroppedDown] = useState(false);
 
-    const contrastMode = useColorScheme();
-
+    //animacja obrotu strzałki
     const rotateZ = useRef(new Animated.Value(0)).current;
 
     const toggleDropdown = () => {
@@ -45,31 +48,59 @@ const SelectLanguage = (props: SelectLanguageProps) => {
 
             return newState;
         });
-    }
+    };
 
     const arrowRotation = rotateZ.interpolate({
         inputRange: [0, 1],
         outputRange: ['90deg', '-90deg'],
-    })
+    });
+
+    //kontrast telefonu
+    const contrastMode = useColorScheme();
+
+    //czy ciemny modtyw
+    const isDarkMode = contrastMode === "dark";
+
+    //style guzika wyboru
+    const selectLanguageButtonStyle = [
+        isDarkMode ? styles.darkBackground : styles.lightBackground,
+        isDarkMode ? styles.darkBorder : styles.lightBorder,
+        styles.container,
+        isDroppedDown && styles.clickedDropdown
+    ];
+
+    //strzałka
+    const arrowContent =
+        isDroppedDown ? require('../assets/images/icons/more_info_focused.png') :
+            (isDarkMode ? require('../assets/images/icons/more_info_dark.png') :
+                require('../assets/images/icons/more_info.png'));
+
+    //style menu
+    const dropDownMenuStyles = [
+        isDarkMode ? styles.darkBackground : styles.lightBackground,
+        isDarkMode ? styles.darkBorder : styles.lightBorder,
+        styles.dropDownMenu
+    ];
+
 
     return (
         <>
             <Pressable
-                style={[contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.container, isDroppedDown && styles.clickedDropdown]}
+                style={selectLanguageButtonStyle}
                 onPress={toggleDropdown}
                 pointerEvents="auto">
                 <View style={styles.changeLanguageButton}>
                     <Image source={currentLanguage?.flag} style={styles.flag}/>
-                    <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.languageText]}>
+                    <Text style={[isDarkMode ? styles.darkText : styles.lightText, styles.languageText]}>
                         {currentLanguage?.shortName}
                     </Text>
                     <Animated.Image
-                        source={isDroppedDown ? require('../assets/images/icons/more_info_focused.png') : (contrastMode === "dark" ? require('../assets/images/icons/more_info_dark.png') : require('../assets/images/icons/more_info.png'))}
+                        source={arrowContent}
                         style={[styles.dropDownArrow, {transform: [{rotateZ: arrowRotation}]}]}/>
                 </View>
             </Pressable>
             {
-                isDroppedDown && <View style={[contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.dropDownMenu]}>
+                isDroppedDown && <View style={dropDownMenuStyles}>
                     <FlatList
                         data={languages}
                         keyExtractor={(item) => item.shortName}
