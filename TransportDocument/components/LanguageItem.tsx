@@ -1,4 +1,4 @@
-import {Pressable, Image, Text, StyleSheet, ImageSourcePropType} from "react-native";
+import {Pressable, Image, Text, StyleSheet, ImageSourcePropType, useColorScheme} from "react-native";
 import {colors} from "@/constants/colors";
 
 interface LanguageItemProps {
@@ -8,10 +8,12 @@ interface LanguageItemProps {
 }
 
 const LanguageItem = (props: LanguageItemProps) => {
+    const contrastMode = useColorScheme();
+
     return (
-        <Pressable style={styles.container} onPress={props.onSelect}>
+        <Pressable style={[contrastMode === "dark" ? styles.darkBackground : styles.lightBackground, styles.container]} onPress={props.onSelect}>
             <Image source={props.flag} style={styles.flag}/>
-            <Text style={styles.languageText}>
+            <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.languageText]}>
                 {props.name}
             </Text>
         </Pressable>
@@ -39,7 +41,18 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "semibold",
         justifyContent: "center",
-        color: colors.lightText,
         marginLeft: 20
+    },
+    darkBackground: {
+        backgroundColor: colors.darkBackground
+    },
+    lightBackground: {
+        backgroundColor: colors.lightBackground
+    },
+    lightText: {
+        color: colors.lightText
+    },
+    darkText: {
+        color: colors.darkText
     }
 })

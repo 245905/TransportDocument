@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Image, Platform, Pressable} from "react-native";
+import {View, Text, StyleSheet, Image, Platform, Pressable, useColorScheme} from "react-native";
 import { colors} from "@/constants/colors";
 
 interface CheckBoxProps {
@@ -8,14 +8,16 @@ interface CheckBoxProps {
 }
 
 const CheckBox = (props : CheckBoxProps) => {
+    const contrastMode = useColorScheme();
+
     return (
       <View style={styles.container}>
             <Pressable onPress={props.onToggle}>
-                <View style={[styles.checkbox, props.value && styles.isChecked]}>
+                <View style={[contrastMode == "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.checkbox, props.value && styles.isChecked]}>
                     {props.value && <Image source={require("@/assets/images/icons/check.png")} style={styles.isCheckedIcon}/>}
                 </View>
             </Pressable>
-          <Text style={styles.checkboxLabel}>
+          <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.checkboxLabel]}>
               {props.label}
           </Text>
       </View>
@@ -33,7 +35,6 @@ const styles = StyleSheet.create({
         width: 25,
         height: 25,
         borderRadius: 7,
-        borderColor: colors.lightBorder,
         borderWidth: 1,
         alignItems: 'flex-start',
         ...Platform.select({
@@ -41,14 +42,12 @@ const styles = StyleSheet.create({
                 elevation: 5,
             }
         }),
-        backgroundColor: colors.lightBackground,
     },
     checkboxLabel: {
         fontSize: 15,
         position: "absolute",
         top: 2,
         left: 50,
-        color: colors.lightText,
     },
     isChecked: {
         backgroundColor: colors.checkBox,
@@ -59,5 +58,23 @@ const styles = StyleSheet.create({
         height: 20,
         left: 1.5,
         top: 1.5,
+    },
+    darkBackground:{
+        backgroundColor: colors.darkBackground
+    },
+    lightBackground:{
+        backgroundColor: colors.lightBackground
+    },
+    darkBorder:{
+        borderColor: colors.darkBorder
+    },
+    lightBorder:{
+        borderColor: colors.lightBorder
+    },
+    lightText:{
+        color: colors.lightText
+    },
+    darkText:{
+        color: colors.darkText
     }
 })

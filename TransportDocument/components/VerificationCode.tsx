@@ -1,4 +1,4 @@
-import {Keyboard, Platform, StyleSheet, TextInput, View} from "react-native";
+import {Keyboard, Platform, StyleSheet, TextInput, useColorScheme, View} from "react-native";
 import {colors} from "@/constants/colors";
 import {useRef, useState} from "react";
 
@@ -12,6 +12,8 @@ const VerificationCode = (props: VerificationCodeProps) => {
     const inputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
 
     const [focused, setFocused] = useState(false);
+
+    const contrastMode = useColorScheme();
 
     const handleOnChange = (text: string, index : number) => {
         const newCode = [...code];
@@ -48,7 +50,7 @@ const VerificationCode = (props: VerificationCodeProps) => {
                 code.map((digit, index) => (
                     <TextInput
                         key={index}
-                        style = {[styles.input, focused && styles.focusedBorderInput,props.error && styles.errorBorder]}
+                        style = {[contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder, styles.darkText] : [styles.lightBackground, styles.lightBorder, styles.lightText], styles.input, focused && styles.focusedBorderInput,props.error && styles.errorBorder]}
                         keyboardType="numeric"
                         maxLength={1}
                         value={digit}
@@ -79,10 +81,7 @@ const styles = StyleSheet.create({
         width: "13.3%",
         marginHorizontal: "1.66%",
         borderWidth: 1,
-        borderColor: colors.lightBorder,
-        backgroundColor: colors.lightBackground,
         fontSize: 30,
-        color: colors.lightText,
         borderRadius: 10,
         textAlign: "center",
         ...Platform.select({
@@ -96,5 +95,23 @@ const styles = StyleSheet.create({
     },
     focusedBorderInput: {
         borderColor: colors.focusedColor,
+    },
+    darkBackground:{
+        backgroundColor: colors.darkBackground
+    },
+    lightBackground:{
+        backgroundColor: colors.lightBackground
+    },
+    darkBorder:{
+        borderColor: colors.darkBorder
+    },
+    lightBorder:{
+        borderColor: colors.lightBorder
+    },
+    lightText:{
+        color: colors.lightText
+    },
+    darkText:{
+        color: colors.darkText
     }
 })

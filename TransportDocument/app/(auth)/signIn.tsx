@@ -1,4 +1,4 @@
-import {Platform, Pressable, Text, View, StyleSheet, Animated, Easing, Keyboard} from 'react-native';
+import {Platform, Pressable, Text, View, StyleSheet, Animated, Easing, Keyboard, useColorScheme} from 'react-native';
 import {Image} from "expo-image";
 import {colors} from "@/constants/colors";
 import InputText from "@/components/InputText"
@@ -10,19 +10,22 @@ import CheckBox from "@/components/CheckBox";
 import SelectLanguage from "@/components/SelectLanguage";
 
 export default function SignIn() {
-    const {t} = useLanguage();
-
-    const [isSelectLanguageActive, setIsSelectLanguageActive] = useState(false);
-
-    const handleOnChangeLanguage = (v: boolean) => {
-        setIsSelectLanguageActive(v);
-    }
-
     const [credentials, setCredentials] = useState({
         phoneNumber: "",
         rememberMe: false,
         code: "",
     });
+
+    const {t} = useLanguage();
+
+    const contrastMode = useColorScheme();
+
+    const [isSelectLanguageActive, setIsSelectLanguageActive] = useState(false);
+
+    const handleOnChangeLanguage = (v: boolean) => {
+        setIsSelectLanguageActive(v);
+
+    }
 
     const [error, setError] = useState("");
 
@@ -109,7 +112,7 @@ export default function SignIn() {
         <View style={styles.background}>
             <Image source={require('@/assets/images/auth_background.webp')}
                    style={styles.backgroundImage}/>
-            <Animated.View style={[styles.loginContainer, {transform: [{translateY}]}]}>
+            <Animated.View style={[styles.loginContainer, {transform: [{translateY}]}, contrastMode === 'dark' ? styles.darkBackground : styles.lightBackground]}>
                 <View style={styles.topBar}>
                     <Text style={styles.header}>
                         {t("signInLabel")}
@@ -132,7 +135,7 @@ export default function SignIn() {
                     step === 1 &&
                     <>
                         <View style={styles.verificationCodeBar}>
-                            <Text style={styles.verificationCodeLabel}>
+                            <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.verificationCodeLabel]}>
                                 {t("verificationCodeLabel")}
                             </Text>
                             <Text style={styles.resetCode}>
@@ -144,10 +147,11 @@ export default function SignIn() {
                     </>
                 }
                 <Pressable onPress={handleOnClick}
-                           style={({pressed}) => [styles.confirmButton, step !== 0 && styles.centerConfirmButton,
+                           style={({pressed}) => [contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.confirmButton,
+                               step !== 0 && styles.centerConfirmButton,
                                step === 0 ? credentials.phoneNumber !== "" && styles.activeButton : credentials.code.length === 6 && styles.activeButton, pressed && styles.pressedButton]}>
                     <Text
-                        style={[styles.signInButtonText, step === 0 ?
+                        style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.signInButtonText, step === 0 ?
                             (credentials.phoneNumber !== "" && styles.activeButtonText) : (credentials.code.length === 6 && styles.activeButtonText)]}>
                         {step === 0 ? t("buttonConfirm") : t("buttonSignIn")}
                     </Text>
@@ -159,7 +163,6 @@ export default function SignIn() {
 
 const styles = StyleSheet.create({
     background: {
-        backgroundColor: colors.lightBackground,
         flex: 1,
     },
     backgroundImage: {
@@ -170,16 +173,15 @@ const styles = StyleSheet.create({
     loginContainer: {
         width: '100%',
         height: '70%',
-        backgroundColor: colors.lightBackground,
         marginTop: '-30%',
         borderRadius: 30,
     },
     header: {
         color: colors.focusedColor,
-        fontSize: 35,
-        fontWeight: 'semibold',
+        fontSize: 33,
         textAlign: 'left',
-        width: "50%"
+        width: "50%",
+        fontFamily: "InterBold"
     },
     confirmButton: {
         width: 150,
@@ -187,9 +189,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         right: '10%',
         borderRadius: 50,
-        backgroundColor: colors.lightBackground,
         borderWidth: 1,
-        borderColor: colors.lightBorder,
         ...Platform.select({
             android: {
                 elevation: 5,
@@ -200,8 +200,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         textAlign: 'center',
         lineHeight: 50,
-        color: colors.lightText,
-        fontWeight: 'semibold',
+        fontFamily: "InterSemiBold"
     },
     activeButton: {
         backgroundColor: colors.focusedColor,
@@ -217,13 +216,13 @@ const styles = StyleSheet.create({
         top: -25
     },
     verificationCodeLabel: {
-        color: colors.lightText,
         fontSize: 25,
         left: 0,
-        width: "60%"
+        width: "60%",
+        fontFamily: "InterSemiBold"
     },
     resetCode: {
-        color: colors.lightLink,
+        color: colors.link,
         fontSize: 15,
         textDecorationLine: 'underline',
         right: 0,
@@ -253,5 +252,23 @@ const styles = StyleSheet.create({
         marginLeft: "5%",
         marginBottom: 30,
         width: "90%"
+    },
+    darkBackground:{
+        backgroundColor: colors.darkBackground
+    },
+    lightBackground:{
+        backgroundColor: colors.lightBackground
+    },
+    darkBorder:{
+        borderColor: colors.darkBorder
+    },
+    lightBorder:{
+        borderColor: colors.lightBorder
+    },
+    lightText:{
+        color: colors.lightText
+    },
+    darkText:{
+        color: colors.darkText
     }
 });

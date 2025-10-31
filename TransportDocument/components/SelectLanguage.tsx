@@ -1,4 +1,4 @@
-import {Image, Pressable, StyleSheet, View, Text, FlatList, Animated, Easing} from "react-native";
+import {Image, Pressable, StyleSheet, View, Text, FlatList, Animated, Easing, useColorScheme} from "react-native";
 import {colors} from "@/constants/colors"
 import LanguageItem from "@/components/LanguageItem";
 import {languages} from "@/constants/languages";
@@ -6,7 +6,7 @@ import {useRef, useState} from "react";
 import {useLanguage} from "@/context/LanguageContext";
 
 interface SelectLanguageProps {
-    onClick : (v: boolean) => void
+    onClick: (v: boolean) => void
 }
 
 const SelectLanguage = (props: SelectLanguageProps) => {
@@ -14,6 +14,8 @@ const SelectLanguage = (props: SelectLanguageProps) => {
     const currentLanguage = languages.find(l => l.lang === lang);
 
     const [isDroppedDown, setIsDroppedDown] = useState(false);
+
+    const contrastMode = useColorScheme();
 
     const rotateZ = useRef(new Animated.Value(0)).current;
 
@@ -52,20 +54,22 @@ const SelectLanguage = (props: SelectLanguageProps) => {
 
     return (
         <>
-            <Pressable style={[styles.container, isDroppedDown && styles.clickedDropdown]} onPress={toggleDropdown}
-                       pointerEvents="auto">
+            <Pressable
+                style={[contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.container, isDroppedDown && styles.clickedDropdown]}
+                onPress={toggleDropdown}
+                pointerEvents="auto">
                 <View style={styles.changeLanguageButton}>
                     <Image source={currentLanguage?.flag} style={styles.flag}/>
-                    <Text style={styles.languageText}>
+                    <Text style={[contrastMode === "dark" ? styles.darkText : styles.lightText, styles.languageText]}>
                         {currentLanguage?.shortName}
                     </Text>
                     <Animated.Image
-                        source={isDroppedDown ? require('../assets/images/icons/more_info_focused.png') : require('../assets/images/icons/more_info.png')}
+                        source={isDroppedDown ? require('../assets/images/icons/more_info_focused.png') : (contrastMode === "dark" ? require('../assets/images/icons/more_info_dark.png') : require('../assets/images/icons/more_info.png'))}
                         style={[styles.dropDownArrow, {transform: [{rotateZ: arrowRotation}]}]}/>
                 </View>
             </Pressable>
             {
-                isDroppedDown && <View style={styles.dropDownMenu}>
+                isDroppedDown && <View style={[contrastMode === "dark" ? [styles.darkBackground, styles.darkBorder] : [styles.lightBackground, styles.lightBorder], styles.dropDownMenu]}>
                     <FlatList
                         data={languages}
                         keyExtractor={(item) => item.shortName}
@@ -97,9 +101,7 @@ const styles = StyleSheet.create({
         height: "80%",
         marginTop: 5,
         marginLeft: "10%",
-        backgroundColor: colors.lightBackground,
         borderRadius: 30,
-        borderColor: colors.lightBorder,
         borderWidth: 1,
     },
     changeLanguageButton: {
@@ -117,11 +119,10 @@ const styles = StyleSheet.create({
     },
     languageText: {
         fontSize: 20,
-        fontWeight: "semibold",
+        fontFamily: "InterSemiBold",
         marginTop: 5,
         marginLeft: 12,
         width: 40,
-        color: colors.lightText,
     },
     dropDownArrow: {
         width: 12,
@@ -134,7 +135,6 @@ const styles = StyleSheet.create({
         width: "40%",
         maxHeight: 200,
         borderRadius: 10,
-        backgroundColor: colors.lightBackground,
         borderWidth: 1,
         borderColor: colors.focusedColor,
         position: "absolute",
@@ -146,5 +146,23 @@ const styles = StyleSheet.create({
     },
     clickedDropdown: {
         borderColor: colors.focusedColor,
+    },
+    darkBackground: {
+        backgroundColor: colors.darkBackground
+    },
+    lightBackground: {
+        backgroundColor: colors.lightBackground
+    },
+    darkBorder: {
+        borderColor: colors.darkBorder
+    },
+    lightBorder: {
+        borderColor: colors.lightBorder
+    },
+    lightText: {
+        color: colors.lightText
+    },
+    darkText: {
+        color: colors.darkText
     }
 })
